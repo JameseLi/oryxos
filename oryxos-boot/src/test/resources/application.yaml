@@ -1,0 +1,5 @@
+# 测试用内存 SQLite，避免依赖 .oryxos/ 工作区已初始化
+spring:
+  datasource:
+    url: "jdbc:sqlite::memory:"
+    driver-class-name: org.sqlite.JDBC

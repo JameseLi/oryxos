@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.oryxos</groupId>
+    <artifactId>oryxos-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>oryxos-parent</name>
+    <description>OryxOS - Java 原生的企业级 Agent OS（私有部署、可审计的 Agent 统一底座）</description>
+
+    <!--
+      模块划分见 docs/TechnicalSolution.md 第 10 章（9 个模块，不多不少）。
+      核心阶段非协商原则见 docs/AiProgrammingGuide.md 第 3.2 节 constitution。
+    -->
+    <modules>
+        <module>oryxos-core</module>
+        <module>oryxos-provider</module>
+        <module>oryxos-memory</module>
+        <module>oryxos-tool</module>
+        <module>oryxos-channel-cli</module>
+        <module>oryxos-web</module>
+        <module>oryxos-storage</module>
+        <module>oryxos-cli</module>
+        <module>oryxos-boot</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-boot.version>3.4.1</spring-boot.version>
+        <picocli.version>4.7.6</picocli.version>
+        <!--
+          TODO(US-1): 引入 Spring AI / Spring AI Alibaba BOM（Provider 抽象底座）。
+          注意 Spring AI 里程碑版本需要额外 repository 配置，实施 US-1 时以官方文档为准。
+          原则四（constitution）：只用 Provider 抽象 + 协议转换 + @Tool schema 生成，禁用自动 tool 执行。
+        -->
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 内部模块统一版本 -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-memory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-tool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-channel-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oryxos</groupId>
+                <artifactId>oryxos-boot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

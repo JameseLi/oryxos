@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.oryxos</groupId>
+        <artifactId>oryxos-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>oryxos-tool</artifactId>
+    <name>oryxos-tool</name>
+    <description>核心能力四（三合一模块）：内置 Tool、McpClientService、McpToolAdapter、ToolRegistry、Sandbox 接口 + WhitelistSandbox、NotifyChannelAdapter + WebhookNotifyAdapter</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.oryxos</groupId>
+            <artifactId>oryxos-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,39 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.eclipse/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+
+# OryxOS 运行时工作区（oryxos init 生成，不入库）
+.oryxos/
+oryxos.db
+
+# 日志
+*.log
+logs/
+
+# Node / VitePress
+node_modules/
+website/.vitepress/dist/
+website/.vitepress/cache/
+
+# pi 子代理产物
+.pi-subagents/

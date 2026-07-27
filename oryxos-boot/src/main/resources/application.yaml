@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: oryxos
+  # SQLite 持久化（技术方案第 9 章）。
+  # 注意：.oryxos/ 工作区由 `oryxos init` 创建；SQLite 上 ddl-auto=update 仅首次建表可用，
+  # 表结构演进手动维护建表脚本（后续引入 Flyway/Liquibase 决议）。
+  datasource:
+    url: "jdbc:sqlite:.oryxos/oryxos.db"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+
+  # Java 21 virtual thread（技术方案决策三/决策五：同步阻塞 + virtual thread 撑高并发）
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: info
