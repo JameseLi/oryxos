@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 430" width="1200" height="430" font-family="'Inter','PingFang SC','Microsoft YaHei',-apple-system,sans-serif">
+  <desc>OryxOS 运行时流程：三个触发源（CLI / Web Service / AgentScheduler）汇入统一入口 AgentService.process，经 ReActLoop 引擎调度 Provider、Memory、Tool 三块能力。</desc>
+  <defs>
+    <marker id="oarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#a3a3a3"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="430" fill="#ffffff"/>
+
+  <!-- 触发源 -->
+  <text x="40" y="42" font-size="11" font-weight="700" letter-spacing="1.5" fill="#999999">触发源 TRIGGERS</text>
+  <rect x="40" y="60" width="230" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="155" y="90" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">CLI Channel</text>
+  <text x="155" y="112" text-anchor="middle" font-size="11" fill="#999999">oryxos chat · 人推</text>
+
+  <rect x="40" y="179" width="230" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="155" y="209" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Web Service</text>
+  <text x="155" y="231" text-anchor="middle" font-size="11" fill="#999999">REST API · 人推</text>
+
+  <rect x="40" y="298" width="230" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="155" y="328" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">AgentScheduler</text>
+  <text x="155" y="350" text-anchor="middle" font-size="11" fill="#999999">cron 到点 · 钟推</text>
+
+  <!-- 触发源 → AgentService -->
+  <path d="M270,96 L315,96 L315,197 L342,197" fill="none" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+  <line x1="270" y1="215" x2="342" y2="215" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+  <path d="M270,334 L315,334 L315,233 L342,233" fill="none" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+
+  <!-- AgentService 统一入口 -->
+  <rect x="345" y="168" width="210" height="94" rx="10" fill="#0f172a"/>
+  <text x="450" y="206" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">AgentService.process</text>
+  <text x="450" y="228" text-anchor="middle" font-size="11" fill="#94a3b8">统一入口 · 不区分触发源</text>
+
+  <line x1="555" y1="215" x2="592" y2="215" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+
+  <!-- ReActLoop 引擎 -->
+  <rect x="595" y="150" width="240" height="130" rx="10" fill="#ffffff" stroke="#000000" stroke-width="1.5"/>
+  <text x="715" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="#000000">ReActLoop</text>
+  <text x="715" y="200" text-anchor="middle" font-size="11" fill="#999999">PromptBuilder · ToolExecutor</text>
+  <text x="715" y="219" text-anchor="middle" font-size="11" fill="#999999">默认上限 10 轮</text>
+  <text x="715" y="252" text-anchor="middle" font-size="11" fill="#666666">有 Tool 调用则执行回填，循环至无调用</text>
+
+  <!-- 引擎 → 能力层 -->
+  <path d="M835,180 L865,180 L865,96 L888,96" fill="none" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+  <line x1="835" y1="215" x2="888" y2="215" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+  <path d="M835,250 L865,250 L865,334 L888,334" fill="none" stroke="#a3a3a3" stroke-width="1.5" marker-end="url(#oarr)"/>
+
+  <!-- 能力层 -->
+  <text x="895" y="42" font-size="11" font-weight="700" letter-spacing="1.5" fill="#999999">能力层 CAPABILITIES</text>
+  <rect x="895" y="60" width="265" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="1027" y="90" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Provider</text>
+  <text x="1027" y="112" text-anchor="middle" font-size="11" fill="#999999">ProviderService · name 显式映射</text>
+
+  <rect x="895" y="179" width="265" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="1027" y="209" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Memory</text>
+  <text x="1027" y="231" text-anchor="middle" font-size="11" fill="#999999">MemoryService 三层门面</text>
+
+  <rect x="895" y="298" width="265" height="72" rx="10" fill="#fafafa" stroke="#e5e5e5"/>
+  <text x="1027" y="328" text-anchor="middle" font-size="14" font-weight="600" fill="#000000">Tool</text>
+  <text x="1027" y="350" text-anchor="middle" font-size="11" fill="#999999">OryxTool · Registry · Sandbox · MCP</text>
+</svg>
