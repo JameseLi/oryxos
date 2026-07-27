@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 610" width="1000" height="610" font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,'Segoe UI',sans-serif">
+  <desc>OryxOS 整体架构：接入层（CLI / Web Service / AgentScheduler）经统一 AgentService 入口，到引擎层（ReActLoop / PromptBuilder / ToolExecutor），再到能力层（Provider / Memory / Tool）与基础层（加载 / SQLite / 配置），右侧为应用边界之外的外部系统。</desc>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect x="0" y="0" width="1000" height="610" rx="12" fill="#ffffff"/>
+
+  <!-- 标题 -->
+  <text x="500" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">OryxOS 整体架构</text>
+  <text x="500" y="58" text-anchor="middle" font-size="12" fill="#64748B">Spring Boot 3.x 单体 · 单二进制部署 · 三触发源汇入同一引擎 · 审计 day one 落库</text>
+
+  <!-- ============ 接入层 ============ -->
+  <rect x="30" y="80" width="640" height="92" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+  <text x="46" y="101" font-size="12.5" font-weight="700" fill="#1D4ED8">接入层</text>
+  <text x="92" y="101" font-size="9.5" fill="#93C5FD">ACCESS</text>
+
+  <rect x="50" y="110" width="190" height="48" rx="8" fill="#ffffff" stroke="#3B82F6"/>
+  <text x="145" y="133" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">CLI Channel</text>
+  <text x="145" y="150" text-anchor="middle" font-size="10" fill="#64748B">oryxos chat 交互对话</text>
+
+  <rect x="255" y="110" width="190" height="48" rx="8" fill="#ffffff" stroke="#3B82F6"/>
+  <text x="350" y="133" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">Web Service</text>
+  <text x="350" y="150" text-anchor="middle" font-size="10" fill="#64748B">REST API · oryxos serve</text>
+
+  <rect x="460" y="110" width="190" height="48" rx="8" fill="#ffffff" stroke="#3B82F6"/>
+  <text x="555" y="133" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">AgentScheduler</text>
+  <text x="555" y="150" text-anchor="middle" font-size="10" fill="#64748B">cron 到点自动触发</text>
+
+  <!-- 接入层 → AgentService -->
+  <line x1="145" y1="158" x2="145" y2="190" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="350" y1="158" x2="350" y2="190" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="555" y1="158" x2="555" y2="190" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ AgentService 统一入口 ============ -->
+  <rect x="30" y="192" width="640" height="42" rx="8" fill="#0F172A"/>
+  <text x="350" y="212" text-anchor="middle" font-size="13.5" font-weight="700" fill="#ffffff">AgentService.process(Session, message)</text>
+  <text x="350" y="227" text-anchor="middle" font-size="10" fill="#94A3B8">统一入口 · 人推（CLI / HTTP）与钟推（cron）复用同一链路</text>
+
+  <line x1="145" y1="234" x2="145" y2="252" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ 引擎层 ============ -->
+  <rect x="30" y="254" width="640" height="92" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.2"/>
+  <text x="46" y="275" font-size="12.5" font-weight="700" fill="#6D28D9">引擎层</text>
+  <text x="92" y="275" font-size="9.5" fill="#C4B5FD">ENGINE</text>
+
+  <rect x="50" y="284" width="190" height="48" rx="8" fill="#ffffff" stroke="#8B5CF6"/>
+  <text x="145" y="307" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">ReActLoop</text>
+  <text x="145" y="324" text-anchor="middle" font-size="10" fill="#64748B">自实现 · 上限 10 轮</text>
+
+  <rect x="255" y="284" width="190" height="48" rx="8" fill="#ffffff" stroke="#8B5CF6"/>
+  <text x="350" y="307" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">PromptBuilder</text>
+  <text x="350" y="324" text-anchor="middle" font-size="10" fill="#64748B">Prompt 四段组装</text>
+
+  <rect x="460" y="284" width="190" height="48" rx="8" fill="#ffffff" stroke="#8B5CF6"/>
+  <text x="555" y="307" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">ToolExecutor</text>
+  <text x="555" y="324" text-anchor="middle" font-size="10" fill="#64748B">执行 · Sandbox · 审计</text>
+
+  <!-- 引擎层 ↔ 能力层 -->
+  <line x1="145" y1="332" x2="145" y2="356" stroke="#94A3B8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="350" y1="332" x2="350" y2="356" stroke="#94A3B8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="555" y1="332" x2="555" y2="356" stroke="#94A3B8" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+
+  <!-- ============ 能力层 ============ -->
+  <rect x="30" y="358" width="640" height="92" rx="10" fill="#ECFDF5" stroke="#10B981" stroke-width="1.2"/>
+  <text x="46" y="379" font-size="12.5" font-weight="700" fill="#047857">能力层</text>
+  <text x="92" y="379" font-size="9.5" fill="#6EE7B7">CAPABILITY</text>
+
+  <rect x="50" y="388" width="190" height="48" rx="8" fill="#ffffff" stroke="#10B981"/>
+  <text x="145" y="411" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">Provider</text>
+  <text x="145" y="428" text-anchor="middle" font-size="10" fill="#64748B">ProviderService · 显式映射</text>
+
+  <rect x="255" y="388" width="190" height="48" rx="8" fill="#ffffff" stroke="#10B981"/>
+  <text x="350" y="411" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">Memory</text>
+  <text x="350" y="428" text-anchor="middle" font-size="10" fill="#64748B">MemoryService 三层门面</text>
+
+  <rect x="460" y="388" width="190" height="48" rx="8" fill="#ffffff" stroke="#10B981"/>
+  <text x="555" y="411" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">Tool</text>
+  <text x="555" y="428" text-anchor="middle" font-size="10" fill="#64748B">OryxTool · Registry · MCP</text>
+
+  <!-- 能力层 → 基础层 -->
+  <line x1="145" y1="436" x2="145" y2="460" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="350" y1="436" x2="350" y2="460" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="555" y1="436" x2="555" y2="460" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ============ 基础层 ============ -->
+  <rect x="30" y="462" width="640" height="92" rx="10" fill="#F8FAFC" stroke="#64748B" stroke-width="1.2"/>
+  <text x="46" y="483" font-size="12.5" font-weight="700" fill="#475569">基础层</text>
+  <text x="92" y="483" font-size="9.5" fill="#94A3B8">FOUNDATION</text>
+
+  <rect x="50" y="492" width="190" height="48" rx="8" fill="#ffffff" stroke="#64748B"/>
+  <text x="145" y="515" text-anchor="middle" font-size="12" font-weight="600" fill="#0F172A">AgentLoader · ContextLoader</text>
+  <text x="145" y="532" text-anchor="middle" font-size="10" fill="#64748B">Agent 目录 · Bootstrap</text>
+
+  <rect x="255" y="492" width="190" height="48" rx="8" fill="#ffffff" stroke="#64748B"/>
+  <text x="350" y="515" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">Session · SQLite</text>
+  <text x="350" y="532" text-anchor="middle" font-size="10" fill="#64748B">sessions · 审计两表落库</text>
+
+  <rect x="460" y="492" width="190" height="48" rx="8" fill="#ffffff" stroke="#64748B"/>
+  <text x="555" y="515" text-anchor="middle" font-size="13" font-weight="600" fill="#0F172A">ConfigLoader</text>
+  <text x="555" y="532" text-anchor="middle" font-size="10" fill="#64748B">密钥环境变量注入</text>
+
+  <!-- ============ 外部系统 ============ -->
+  <rect x="740" y="80" width="230" height="474" rx="10" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.2" stroke-dasharray="5,4"/>
+  <text x="756" y="104" font-size="13" font-weight="700" fill="#B45309">外部系统</text>
+  <text x="756" y="120" font-size="9.5" fill="#D97706">应用边界之外 · 不绑定任何一家</text>
+
+  <rect x="756" y="140" width="198" height="56" rx="8" fill="#ffffff" stroke="#F59E0B"/>
+  <text x="855" y="164" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0F172A">业务系统</text>
+  <text x="855" y="181" text-anchor="middle" font-size="10" fill="#64748B">ERP · CRM · CI/CD</text>
+
+  <rect x="756" y="216" width="198" height="56" rx="8" fill="#ffffff" stroke="#F59E0B"/>
+  <text x="855" y="240" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0F172A">LLM APIs</text>
+  <text x="855" y="257" text-anchor="middle" font-size="10" fill="#64748B">DeepSeek · 通义 · Kimi …</text>
+
+  <rect x="756" y="292" width="198" height="56" rx="8" fill="#ffffff" stroke="#F59E0B"/>
+  <text x="855" y="316" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0F172A">MCP Servers</text>
+  <text x="855" y="333" text-anchor="middle" font-size="10" fill="#64748B">社区现成 · 业务方自研</text>
+
+  <rect x="756" y="368" width="198" height="56" rx="8" fill="#ffffff" stroke="#F59E0B"/>
+  <text x="855" y="392" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0F172A">通知 Webhook</text>
+  <text x="855" y="409" text-anchor="middle" font-size="10" fill="#64748B">企业微信 · 飞书 · 钉钉</text>
+
+  <rect x="756" y="444" width="198" height="56" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-dasharray="4,3"/>
+  <text x="855" y="468" text-anchor="middle" font-size="12.5" font-weight="600" fill="#64748B">扩展预留</text>
+  <text x="855" y="485" text-anchor="middle" font-size="10" fill="#94A3B8">向量库 · 对象存储 · KMS</text>
+
+  <!-- ============ 跨边界连接 ============ -->
+  <!-- 业务系统 → Web Service -->
+  <path d="M756,168 L700,168 L700,134 L672,134" fill="none" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="704" y="162" font-size="9.5" fill="#64748B">REST 调用</text>
+
+  <!-- Provider → LLM APIs -->
+  <path d="M670,412 L690,412 L690,244 L754,244" fill="none" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="694" y="237" font-size="9.5" fill="#64748B">LLM 调用</text>
+
+  <!-- Tool → MCP Servers -->
+  <path d="M670,424 L706,424 L706,320 L754,320" fill="none" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="710" y="313" font-size="9.5" fill="#64748B">MCP 协议</text>
+
+  <!-- NotifyTools → Webhook -->
+  <path d="M670,436 L722,436 L722,396 L754,396" fill="none" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 底部注解 -->
+  <text x="500" y="584" text-anchor="middle" font-size="11" fill="#64748B">所有能力收敛于单进程单二进制 · 引擎与能力、能力与外部之间均以抽象接口解耦 · 新增 Channel / Provider / Tool 只在边缘扩展，不动核心引擎</text>
+</svg>
