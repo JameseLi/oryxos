@@ -12,4 +12,26 @@
     <artifactId>oryxos-core</artifactId>
     <name>oryxos-core</name>
     <description>核心抽象和接口：OryxTool、Session、Profile、ReActLoop、PromptBuilder、ToolExecutor、AgentService、AgentScheduler、AgentLoader、ContextLoader（技术方案第 10 章）</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- Spring AI 只用抽象层：ChatModel/Prompt/Message/ToolCallingChatOptions/ToolCallback（宪法原则四） -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

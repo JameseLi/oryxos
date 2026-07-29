@@ -1,19 +1,25 @@
 spring:
   application:
     name: oryxos
-  # SQLite 持久化（技术方案第 9 章）。
-  # 注意：.oryxos/ 工作区由 `oryxos init` 创建；SQLite 上 ddl-auto=update 仅首次建表可用，
-  # 表结构演进手动维护建表脚本（后续引入 Flyway/Liquibase 决议）。
+  main:
+    # 控制台应用：spring-ai starter 会带入 webflux，但核心阶段 CLI 不启动 Web 容器
+    # （US-5 Web Service 特性开启时改为 servlet/reactive）
+    web-application-type: none
   datasource:
-    url: "jdbc:sqlite:.oryxos/oryxos.db"
+    url: "jdbc:sqlite:${oryxos.storage.db-path:.oryxos/oryxos.db}"
     driver-class-name: org.sqlite.JDBC
   jpa:
     hibernate:
+      # 宪法工程约束：表结构以 scripts/sql/001-init.sql 手写脚本为准，不依赖自动迁移
       ddl-auto: none
     open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:scripts/sql/001-init.sql
 
   # Java 21 virtual thread（技术方案决策三/决策五：同步阻塞 + virtual thread 撑高并发）
   threads:
@@ -26,3 +32,37 @@ server:
 logging:
   level:
     root: info
+
+# ---------------------------------------------------------------------------
+# OryxOS 配置（contracts/cli-contract.md）
+# 密钥一律走环境变量（api-key-env 只存变量名，禁止明文写密钥——宪法工程约束）
+# ---------------------------------------------------------------------------
+oryxos:
+  workspace-dir: .oryxos
+  react:
+    max-iterations: 10            # ReAct 迭代上限（FR-007；AGENT.md max_iterations 可覆盖）
+    invocation-timeout-seconds: 60  # 单次 Agent 调用整体超时（FR-010）
+  storage:
+    db-path: .oryxos/oryxos.db
+  sandbox:
+    # http_get 域名白名单（WhitelistSandbox；支持后缀匹配）
+    allowed-domains:
+      - wttr.in
+  tools:
+    http-timeout-seconds: 10      # 工具 HTTP 请求超时（超时按工具失败处理，走失败回填路径）
+  providers:
+    deepseek:
+      type: deepseek
+      model: deepseek-chat
+      api-key-env: DEEPSEEK_API_KEY
+    # 第二家示例（US3 切换验收用，contracts/cli-contract.md）：
+    # qwen:
+    #   type: dashscope
+    #   model: qwen-plus
+    #   api-key-env: AI_DASHSCOPE_API_KEY
+    # OpenAI 兼容型示例（Kimi/智谱/混元/豆包等）：
+    # kimi:
+    #   type: openai-compatible
+    #   model: moonshot-v1-8k
+    #   base-url: https://api.moonshot.cn/v1
+    #   api-key-env: MOONSHOT_API_KEY

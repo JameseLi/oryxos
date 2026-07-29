@@ -14,6 +14,7 @@
     <description>持久化层：SQLite + Spring Data JPA，SessionRepository、ToolInvocationRepository、LlmCallRepository（审计表 day one 落库）</description>
 
     <dependencies>
+        <!-- 依赖 core 的存储接口（SessionStore/AuditStore），DIP 反向依赖，core 不感知 JPA -->
         <dependency>
             <groupId>com.oryxos</groupId>
             <artifactId>oryxos-core</artifactId>
@@ -29,6 +30,12 @@
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-community-dialects</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

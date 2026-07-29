@@ -18,5 +18,34 @@
             <groupId>com.oryxos</groupId>
             <artifactId>oryxos-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!--
+          LLM 连接器（research.md R4 + 宪法原则四）：只依赖 connector 核心包，
+          显式不引入 *-starter / *-autoconfigure——ChatModel 由 ProviderRegistry
+          程序化构造（provider name 显式映射），杜绝自动装配的隐性副作用
+          （如无密钥拒绝启动、Bean 类型歧义）。
+        -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-deepseek</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-dashscope</artifactId>
+            <version>${spring-ai-alibaba.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

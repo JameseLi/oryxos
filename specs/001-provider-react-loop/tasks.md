@@ -140,7 +140,7 @@ description: "Task list for Provider 抽象 + ReAct Loop implementation"
 - [x] T044 [P] 结构化日志复查：所有 LLM/工具调用日志含 provider/tool、耗时、成败（宪法工程约束，抽查各模块日志语句）
 - [ ] T045 全量跑 quickstart 场景 A–E，逐项登记 SC-001~SC-006 实测结果（specs/001-provider-react-loop/quickstart.md 验收对照表）
 - [x] T046 一致性检查（AGENTS.md §10）：spec↔plan↔代码漂移核对，重点复查宪法 13 项门禁在代码层面的落点
-- [ ] T047 git commit 标记 US-1+US-2 稳定点（宪法 VII：可回退）
+- [x] T047 git commit 标记 US-1+US-2 稳定点（宪法 VII：可回退）
 
 ---
 
