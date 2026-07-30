@@ -15,6 +15,7 @@ import com.oryxos.core.support.ScriptedChatModel;
 import com.oryxos.core.tool.ToolExecutor;
 import com.oryxos.core.workspace.WorkspaceLayout;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.ai.chat.model.ChatModel;
@@ -75,14 +76,16 @@ class AgentServiceTest {
     }
 
     @Test
-    void 空消息拒绝_FR003() {
+    @DisplayName("空消息拒绝（FR-003）")
+    void blankMessageRejected_FR003() {
         assertThatThrownBy(() -> service.process("weather", null, "   ", "cli", null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("不能为空");
     }
 
     @Test
-    void 超过32KB拒绝_FR003() {
+    @DisplayName("超过 32KB 拒绝（FR-003）")
+    void messageOver32KbRejected_FR003() {
         String huge = "x".repeat(33 * 1024);
         assertThatThrownBy(() -> service.process("weather", null, huge, "cli", null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -90,7 +93,8 @@ class AgentServiceTest {
     }
 
     @Test
-    void 正常问答并持久化会话() {
+    @DisplayName("正常问答并持久化会话")
+    void normalChatPersistsSession() {
         scriptedModel = new ScriptedChatModel(ScriptedChatModel.textResponse("你好，世界"));
 
         AgentService.AgentReply reply = service.process("weather", null, "你好", "cli", null);
@@ -104,7 +108,8 @@ class AgentServiceTest {
     }
 
     @Test
-    void 续聊复用同一会话历史() {
+    @DisplayName("续聊复用同一会话历史")
+    void followUpReusesSameSessionHistory() {
         scriptedModel = new ScriptedChatModel(
                 ScriptedChatModel.textResponse("第一轮"),
                 ScriptedChatModel.textResponse("第二轮"));
@@ -119,7 +124,8 @@ class AgentServiceTest {
     }
 
     @Test
-    void 工具调用闭环() {
+    @DisplayName("工具调用闭环")
+    void toolCallCompletesLoop() {
         scriptedModel = new ScriptedChatModel(
                 ScriptedChatModel.toolCallResponse(ScriptedChatModel.toolCall("c1", "echo", "{\"text\":\"w\"}")),
                 ScriptedChatModel.textResponse("工具说：w"));
@@ -136,7 +142,8 @@ class AgentServiceTest {
     }
 
     @Test
-    void 超时返回兜底说明且会话保留_FR010() {
+    @DisplayName("超时返回兜底说明且会话保留（FR-010）")
+    void timeoutReturnsFallbackAndKeepsSession_FR010() {
         scriptedModel = new ScriptedChatModel(ScriptedChatModel.textResponse("太慢")).sleep(3000);
 
         AgentService.AgentReply reply = service.process("weather", null, "你好", "cli", null);

@@ -9,6 +9,7 @@ import com.oryxos.core.support.RecordingAuditStore;
 import com.oryxos.core.support.ScriptedChatModel;
 import com.oryxos.core.tool.ToolExecutor;
 import com.oryxos.core.tool.ToolProgressListener;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -37,7 +38,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 无工具调用时直接返回最终文本_FR006() {
+    @DisplayName("无工具调用时直接返回最终文本（FR-006）")
+    void returnsFinalTextWhenNoToolCall_FR006() {
         ScriptedChatModel model = new ScriptedChatModel(ScriptedChatModel.textResponse("最终回答"));
         List<Message> sink = sinkMessages();
 
@@ -52,7 +54,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 一轮工具调用后回填并输出最终回答_FR005() {
+    @DisplayName("一轮工具调用后回填并输出最终回答（FR-005）")
+    void toolResultFedBackBeforeFinalAnswer_FR005() {
         ScriptedChatModel model = new ScriptedChatModel(
                 ScriptedChatModel.toolCallResponse(ScriptedChatModel.toolCall("c1", "echo", "{\"text\":\"a\"}")),
                 ScriptedChatModel.textResponse("基于工具结果的回答"));
@@ -74,7 +77,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 单次响应多个工具调用全部执行并一次性回填() {
+    @DisplayName("单次响应多个工具调用全部执行并一次性回填")
+    void multipleToolCallsAllExecutedAndFedBackAtOnce() {
         ScriptedChatModel model = new ScriptedChatModel(
                 ScriptedChatModel.toolCallResponse(
                         ScriptedChatModel.toolCall("c1", "echo", "{\"text\":\"a\"}"),
@@ -93,7 +97,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 无法解析的工具调用反馈纠正且计一次迭代_FR009() {
+    @DisplayName("无法解析的工具调用反馈纠正且计一次迭代（FR-009）")
+    void unparseableToolCallGetsFeedbackAndCountsIteration_FR009() {
         ScriptedChatModel model = new ScriptedChatModel(
                 ScriptedChatModel.toolCallResponse(ScriptedChatModel.toolCall("c1", "", "{}")),
                 ScriptedChatModel.textResponse("纠正后的回答"));
@@ -112,7 +117,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 达到迭代上限返回上限说明_FR007() {
+    @DisplayName("达到迭代上限返回上限说明（FR-007）")
+    void returnsLimitNoticeWhenMaxIterationsReached_FR007() {
         ScriptedChatModel model = new ScriptedChatModel(
                 ScriptedChatModel.toolCallResponse(ScriptedChatModel.toolCall("c1", "echo", "{}")),
                 ScriptedChatModel.toolCallResponse(ScriptedChatModel.toolCall("c2", "echo", "{}")),
@@ -127,7 +133,8 @@ class ReActLoopTest {
     }
 
     @Test
-    void 模型异常落失败审计后原样上抛_FR016_FR018() {
+    @DisplayName("模型异常落失败审计后原样上抛（FR-016/018）")
+    void modelErrorAuditedAndRethrown_FR016_FR018() {
         ScriptedChatModel model = new ScriptedChatModel(); // 空脚本 → 调用即抛
 
         assertThatThrownBy(() -> loop.run(model, new ArrayList<>(List.of(new UserMessage("hi"))),

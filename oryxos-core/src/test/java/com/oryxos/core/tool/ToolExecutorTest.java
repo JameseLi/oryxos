@@ -6,6 +6,7 @@ import java.util.List;
 import com.oryxos.core.audit.AuditRecorder;
 import com.oryxos.core.support.FakeToolCatalog;
 import com.oryxos.core.support.RecordingAuditStore;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -26,7 +27,8 @@ class ToolExecutorTest {
     }
 
     @Test
-    void 成功执行返回结果文本并落审计() {
+    @DisplayName("成功执行返回结果文本并落审计")
+    void successfulExecutionReturnsResultAndAudits() {
         List<String> events = new ArrayList<>();
         ToolProgressListener listener = new ToolProgressListener() {
             @Override
@@ -49,7 +51,8 @@ class ToolExecutorTest {
     }
 
     @Test
-    void 未知工具返回错误结果不抛出_FR008() {
+    @DisplayName("未知工具返回错误结果不抛出（FR-008）")
+    void unknownToolReturnsErrorWithoutThrowing_FR008() {
         ToolResponseMessage.ToolResponse response = executor.execute("s1", call("ghost"), null);
 
         assertThat(response.responseData()).startsWith("ERROR:");
@@ -58,7 +61,8 @@ class ToolExecutorTest {
     }
 
     @Test
-    void 工具抛异常被捕获转为失败结果_FR008() {
+    @DisplayName("工具抛异常被捕获转为失败结果（FR-008）")
+    void toolExceptionCapturedAsFailureResult_FR008() {
         ToolResponseMessage.ToolResponse response = executor.execute("s1", call("boom_tool"), null);
 
         assertThat(response.responseData()).isEqualTo("ERROR: boom");

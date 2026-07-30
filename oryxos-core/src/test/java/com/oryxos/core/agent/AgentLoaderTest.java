@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import com.oryxos.core.support.FakeToolCatalog;
 import com.oryxos.core.workspace.WorkspaceLayout;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -46,7 +47,8 @@ class AgentLoaderTest {
             """;
 
     @Test
-    void 合法定义正常解析() throws IOException {
+    @DisplayName("合法定义正常解析")
+    void validDefinitionParsesCorrectly() throws IOException {
         writeAgent("weather", VALID);
 
         AgentDefinition def = loader.load("weather");
@@ -59,14 +61,16 @@ class AgentLoaderTest {
     }
 
     @Test
-    void 无max_iterations时用全局默认() throws IOException {
+    @DisplayName("无 max_iterations 时用全局默认")
+    void missingMaxIterationsUsesGlobalDefault() throws IOException {
         writeAgent("weather", VALID.replace("max_iterations: 5\n", ""));
 
         assertThat(loader.load("weather").effectiveMaxIterations(10)).isEqualTo(10);
     }
 
     @Test
-    void Agent不存在时报可用列表() {
+    @DisplayName("Agent 不存在时报可用列表")
+    void missingAgentErrorListsAvailable() {
         assertThatThrownBy(() -> loader.load("ghost"))
                 .isInstanceOf(AgentLoader.AgentNotFoundException.class)
                 .hasMessageContaining("ghost")
@@ -74,7 +78,8 @@ class AgentLoaderTest {
     }
 
     @Test
-    void name与目录名不一致报错() throws IOException {
+    @DisplayName("name 与目录名不一致报错")
+    void nameMismatchWithDirectoryFails() throws IOException {
         writeAgent("weather", VALID.replace("name: weather", "name: other"));
 
         assertThatThrownBy(() -> loader.load("weather"))
@@ -83,7 +88,8 @@ class AgentLoaderTest {
     }
 
     @Test
-    void 缺provider点name报错() throws IOException {
+    @DisplayName("缺 provider.name 报错")
+    void missingProviderNameFails() throws IOException {
         writeAgent("weather", VALID.replace("provider: { name: deepseek, model: deepseek-chat }",
                 "provider: { model: deepseek-chat }"));
 
@@ -93,7 +99,8 @@ class AgentLoaderTest {
     }
 
     @Test
-    void 引用未注册工具报错并列出已注册() throws IOException {
+    @DisplayName("引用未注册工具报错并列出已注册")
+    void unregisteredToolErrorListsRegistered() throws IOException {
         writeAgent("weather", VALID.replace("tools: [http_get]", "tools: [http_get, shell]"));
 
         assertThatThrownBy(() -> loader.load("weather"))
@@ -103,7 +110,8 @@ class AgentLoaderTest {
     }
 
     @Test
-    void max_iterations越界报错() throws IOException {
+    @DisplayName("max_iterations 越界报错")
+    void maxIterationsOutOfRangeFails() throws IOException {
         writeAgent("weather", VALID.replace("max_iterations: 5", "max_iterations: 0"));
 
         assertThatThrownBy(() -> loader.load("weather"))

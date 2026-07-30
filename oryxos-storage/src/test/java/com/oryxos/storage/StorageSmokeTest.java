@@ -11,6 +11,7 @@ import com.oryxos.core.session.SessionStore;
 import com.oryxos.core.session.StoredMessage;
 import com.oryxos.core.session.StoredSession;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -50,7 +51,8 @@ class StorageSmokeTest {
     private AuditStore auditStore;
 
     @Test
-    void 会话建查与消息追加有序() {
+    @DisplayName("会话建查与消息追加有序")
+    void sessionCreateFindAndOrderedMessageAppend() {
         StoredSession session = sessionStore.createSession("weather", "cli", "local");
         assertThat(session.id()).isNotBlank();
         assertThat(sessionStore.findSession(session.id())).isPresent();
@@ -66,7 +68,8 @@ class StorageSmokeTest {
     }
 
     @Test
-    void 审计两张表写入成功() {
+    @DisplayName("审计两张表写入成功")
+    void auditTablesWritable() {
         auditStore.saveLlmCall(new LlmCallRecord(
                 "sess-x", "deepseek", "deepseek-chat", 0,
                 "{}", "{}", 2, 2, 10, 5, 123L, true, null));

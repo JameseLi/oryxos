@@ -131,6 +131,7 @@ US-1 对接 LLM → US-2 ReAct 循环 → US-3 Memory ∥ US-4 Tool 体系 → U
 
 ## 9. 编码与工程约定
 
+- **标识符一律英文 ASCII**：类名、方法名、函数名、变量名、常量名等所有代码标识符必须使用英文（遵循 Java 惯例：类 `UpperCamelCase`、方法/变量 `lowerCamelCase`、常量 `UPPER_SNAKE_CASE`），**禁止中文等非 ASCII 字符**（Java 虽允许 Unicode 标识符编译通过，但本仓库一律不用）。测试方法的中文描述放进 `@DisplayName` 注解（JUnit 5 报告照常显示中文），需求追溯后缀（如 `_FR006`）可保留在方法名尾部。
 - 所有 LLM 调用、Tool 调用记结构化日志 + 落审计表（含 token 用量、耗时、成功/失败、错误信息）。
 - Web 层统一响应信封 `ApiResponse`（`code`/`message`/`data`/`timestamp`），异常经 `GlobalExceptionHandler` 转标准 JSON。
 - 接口先行：新增能力先想"接口是否中立"——签名里不出现某一档实现特有的词（Sandbox 接口不出现"白名单/容器/VM"，MemoryStore 不出现"Markdown/SQLite"）。

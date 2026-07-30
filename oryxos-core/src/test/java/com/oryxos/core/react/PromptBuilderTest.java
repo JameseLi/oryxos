@@ -3,6 +3,7 @@ package com.oryxos.core.react;
 import java.util.List;
 
 import com.oryxos.core.support.FakeToolCatalog;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -17,7 +18,8 @@ class PromptBuilderTest {
     private final PromptBuilder builder = new PromptBuilder();
 
     @Test
-    void system与历史按序组装() {
+    @DisplayName("system 与历史按序组装")
+    void systemAndHistoryAssembledInOrder() {
         List<Message> messages = builder.build("系统提示", List.of(new UserMessage("你好")));
 
         assertThat(messages).hasSize(2);
@@ -26,7 +28,8 @@ class PromptBuilderTest {
     }
 
     @Test
-    void 历史超过50条按最近截断() {
+    @DisplayName("历史超过 50 条按最近截断")
+    void historyOver50TruncatedToLatest() {
         List<Message> history = new java.util.ArrayList<>();
         for (int i = 0; i < 60; i++) {
             history.add(new UserMessage("msg-" + i));
@@ -41,7 +44,8 @@ class PromptBuilderTest {
     }
 
     @Test
-    void 工具options禁用自动执行_宪法IV() {
+    @DisplayName("工具 options 禁用自动执行（宪法 IV）")
+    void toolOptionsDisableAutoExecution_constitutionIV() {
         ToolCallingChatOptions options = builder.toolOptions(
                 List.of(FakeToolCatalog.echoTool("echo")));
 
@@ -51,7 +55,8 @@ class PromptBuilderTest {
     }
 
     @Test
-    void schema适配器的call永不执行() {
+    @DisplayName("schema 适配器的 call 永不执行")
+    void schemaAdapterCallNeverExecutes() {
         ToolCallingChatOptions options = builder.toolOptions(List.of(FakeToolCatalog.echoTool("echo")));
 
         org.assertj.core.api.Assertions.assertThatThrownBy(

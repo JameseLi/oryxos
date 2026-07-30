@@ -2,6 +2,7 @@ package com.oryxos.provider;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.model.ChatModel;
 
@@ -37,7 +38,8 @@ class ProviderRegistryTest {
     }
 
     @Test
-    void 两家同类型provider并存且按名解析不同模型_FR014() {
+    @DisplayName("两家同类型 provider 并存且按名解析不同模型（FR-014）")
+    void sameTypeProvidersCoexistAndResolveByName_FR014() {
         ProviderRegistry registry = newRegistry(
                 Map.of("KIMI_KEY", "k1", "DOUBAO_KEY", "k2"), twoCompatibleProviders());
 
@@ -52,7 +54,8 @@ class ProviderRegistryTest {
     }
 
     @Test
-    void 未配置的provider报错并列出可用_US3_AS3() {
+    @DisplayName("未配置的 provider 报错并列出可用（US3-AS3）")
+    void unconfiguredProviderErrorListsAvailable_US3_AS3() {
         ProviderRegistry registry = newRegistry(Map.of("KIMI_KEY", "k1", "DOUBAO_KEY", "k2"),
                 twoCompatibleProviders());
 
@@ -63,7 +66,8 @@ class ProviderRegistryTest {
     }
 
     @Test
-    void 密钥环境变量缺失启动即报_FR013() {
+    @DisplayName("密钥环境变量缺失启动即报（FR-013）")
+    void missingApiKeyEnvFailsFast_FR013() {
         ProviderRegistry registry = newRegistry(Map.of("KIMI_KEY", "k1"), twoCompatibleProviders());
 
         assertThatThrownBy(() -> registry.resolve("doubao"))
@@ -72,7 +76,8 @@ class ProviderRegistryTest {
     }
 
     @Test
-    void deepseek型构造() {
+    @DisplayName("deepseek 型构造")
+    void deepseekTypeConstructs() {
         ProviderProperties props = new ProviderProperties();
         ProviderProperties.ProviderSpec ds = new ProviderProperties.ProviderSpec();
         ds.setType("deepseek");
@@ -86,7 +91,8 @@ class ProviderRegistryTest {
     }
 
     @Test
-    void 未知type报错() {
+    @DisplayName("未知 type 报错")
+    void unknownTypeFails() {
         ProviderProperties props = new ProviderProperties();
         ProviderProperties.ProviderSpec bad = new ProviderProperties.ProviderSpec();
         bad.setType("magic");
