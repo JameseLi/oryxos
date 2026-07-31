@@ -1,0 +1,15 @@
+# IDE 中立兜底；Java 格式唯一裁决者是 spotless:check（google-java-format GOOGLE 风格，2 空格缩进）
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{java,xml,yml,yaml,json,md,sh}]
+indent_style = space
+indent_size = 2
+
+[*.java]
+max_line_length = 100

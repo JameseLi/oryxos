@@ -42,6 +42,29 @@
           兼容 Boot 3.x；2.0.0 强制 Boot 4.x 违宪不可用）。
           原则四（constitution）：只用 Provider 抽象 + 协议转换 + @Tool schema 生成，禁用自动 tool 执行。
         -->
+
+        <!-- 基础设施：结构化日志 / OpenAPI -->
+        <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+        <springdoc-openapi.version>2.8.6</springdoc-openapi.version>
+
+        <!--
+          工程质量工具链（oryxos-init skill）：
+          格式层 Spotless + google-java-format（能自动修，格式唯一裁决者）；
+          编码规约层 阿里 P3C（p3c-pmd 挂在 maven-pmd-plugin 上）；
+          兜底 Checkstyle（google_checks，观察期只报告不拦截）；
+          安全层 SpotBugs + Find Security Bugs；OWASP Dependency-Check 在 security profile。
+        -->
+        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+        <google-java-format.version>1.24.0</google-java-format.version>
+        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <checkstyle.version>10.21.0</checkstyle.version>
+        <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
+        <p3c-pmd.version>2.1.1</p3c-pmd.version>
+        <spotbugs-maven-plugin.version>4.8.6.1</spotbugs-maven-plugin.version>
+        <findsecbugs-plugin.version>1.13.0</findsecbugs-plugin.version>
+        <dependency-check-maven.version>12.1.0</dependency-check-maven.version>
+        <git-build-hook-maven-plugin.version>3.6.0</git-build-hook-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -73,6 +96,32 @@
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
                 <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi.version}</version>
+            </dependency>
+            <!--
+              enforcer dependencyConvergence：spring-ai-model 拉 2.2.38、springdoc 拉 2.2.29，统一钉到 2.2.38
+            -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>2.2.38</version>
+            </dependency>
+            <!--
+              enforcer dependencyConvergence：spring-ai 拉 4.13.1、hibernate/spring-data-jpa 拉 4.13.2，统一钉到 4.13.2
+            -->
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.13.2</version>
             </dependency>
             <dependency>
                 <groupId>com.oryxos</groupId>
@@ -144,7 +193,259 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
                 </plugin>
+
+                <!-- 构建环境门禁：JDK 21 + Maven 3.9+ + 多模块依赖收敛 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-build-environment</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireJavaVersion>
+                                        <version>[21,22)</version>
+                                    </requireJavaVersion>
+                                    <requireMavenVersion>
+                                        <version>[3.9,)</version>
+                                    </requireMavenVersion>
+                                    <dependencyConvergence/>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- 格式层：google-java-format 是唯一格式裁决者；JDK 21 下需 .mvn/jvm.config 的 add-exports -->
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>${spotless-maven-plugin.version}</version>
+                    <configuration>
+                        <java>
+                            <googleJavaFormat>
+                                <version>${google-java-format.version}</version>
+                                <style>GOOGLE</style>
+                            </googleJavaFormat>
+                            <removeUnusedImports/>
+                            <importOrder/>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                        </java>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>spotless-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                  兜底：Checkstyle google_checks（观察期 failOnViolation=false，只出报告；
+                  格式合并门禁是 spotless:check，见 skill 第 7 步分工原则）
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <configLocation>google_checks.xml</configLocation>
+                        <consoleOutput>false</consoleOutput>
+                        <failsOnError>false</failsOnError>
+                        <failOnViolation>false</failOnViolation>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>checkstyle-report</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                  编码规约层：阿里 P3C（p3c-pmd 基于 PMD 6 API，故锁定 maven-pmd-plugin 3.21.x 的 PMD 6.55；
+                  PMD 6 最高识别 targetJdk 20——本仓库不使用 21 独有语法，解析无虞）。
+                  ali-comment（强制 javadoc 类规则）不入门禁，靠 review 自觉。
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${maven-pmd-plugin.version}</version>
+                    <configuration>
+                        <targetJdk>20</targetJdk>
+                        <!--
+                          PMD 6.55 的 ASM 读不了 Java 21 字节码（major 65），关掉类型解析：
+                          P3C 规则绝大多数基于 AST 不受影响，少数需要类型信息的规则降级不触发。
+                          待 P3C 支持 PMD 7 后恢复（p3c 项目目前停滞）。
+                        -->
+                        <typeResolution>false</typeResolution>
+                        <printFailingErrors>true</printFailingErrors>
+                        <rulesets>
+                            <ruleset>rulesets/java/ali-naming.xml</ruleset>
+                            <ruleset>rulesets/java/ali-constant.xml</ruleset>
+                            <ruleset>rulesets/java/ali-concurrent.xml</ruleset>
+                            <ruleset>rulesets/java/ali-exception.xml</ruleset>
+                            <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
+                            <ruleset>rulesets/java/ali-oop.xml</ruleset>
+                            <ruleset>rulesets/java/ali-orm.xml</ruleset>
+                            <ruleset>rulesets/java/ali-set.xml</ruleset>
+                            <ruleset>rulesets/java/ali-other.xml</ruleset>
+                        </rulesets>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.alibaba.p3c</groupId>
+                            <artifactId>p3c-pmd</artifactId>
+                            <version>${p3c-pmd.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>pmd-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- 安全层：SpotBugs + Find Security Bugs（OWASP Top 10 源码层） -->
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs-maven-plugin.version}</version>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/config/spotbugs/excludeFilter.xml</excludeFilterFile>
+                        <plugins>
+                            <plugin>
+                                <groupId>com.h3xstream.findsecbugs</groupId>
+                                <artifactId>findsecbugs-plugin</artifactId>
+                                <version>${findsecbugs-plugin.version}</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>spotbugs-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- 本地 pre-commit 钩子自动安装（mvn 任意命令触发一次即可） -->
+                <plugin>
+                    <groupId>com.rudikershaw.gitbuildhook</groupId>
+                    <artifactId>git-build-hook-maven-plugin</artifactId>
+                    <version>${git-build-hook-maven-plugin.version}</version>
+                    <configuration>
+                        <installHooks>
+                            <pre-commit>scripts/git-hooks/pre-commit.sh</pre-commit>
+                        </installHooks>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>install-git-hooks</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>install</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- OWASP Dependency-Check：只在 security profile 跑（见下方 profile 注释） -->
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${dependency-check-maven.version}</version>
+                    <configuration>
+                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <dataDirectory>${maven.multiModuleProjectDirectory}/.depcheck-data</dataDirectory>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
+
+        <!-- 全模块继承的质量门禁：enforcer → spotless → checkstyle(观察) → pmd(P3C) → spotbugs -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.rudikershaw.gitbuildhook</groupId>
+                <artifactId>git-build-hook-maven-plugin</artifactId>
+                <inherited>false</inherited>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <!--
+          OWASP Dependency-Check 独立 profile：首次运行需下载 NVD 全量库（分钟级），
+          不拖慢日常 mvn verify。本地：mvn verify -Psecurity（建议先 export NVD_API_KEY，
+          无 key 会被 NVD 限流）；CI：weekly + 手动触发（见 .github/workflows/ci.yml）。
+        -->
+        <profile>
+            <id>security</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <executions>
+                            <execution>
+                                <id>owasp-dependency-check</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

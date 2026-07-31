@@ -30,6 +30,9 @@ oryxos.db
 *.log
 logs/
 
+# OWASP Dependency-Check 本地 NVD 缓存
+.depcheck-data/
+
 # Node / VitePress
 node_modules/
 website/.vitepress/dist/

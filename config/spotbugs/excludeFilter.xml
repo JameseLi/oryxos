@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs 排除清单：只放「确认误报 / 有意为之」的条目，每条必须带注释说明理由。
+  能通过改代码消除的告警，优先改代码，不要把这里当垃圾桶。
+-->
+<FindBugsFilter>
+
+    <!--
+      EI_EXPOSE_REP2（构造器存外部对象）在本项目全局排除：
+      Spring 构造器注入容器管理单例是标准写法，该规则对 DI 组件逐类误报，噪声大于价值；
+      可变状态逃逸由 review + EI_EXPOSE_REP（返回值方向仍开启）把关。
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!--
+      AgentDefinition.tools 已在紧凑构造器 List.copyOf 防御拷贝为不可变列表，
+      访问器返回它是安全的（EI_EXPOSE_REP 误报）。
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="com.oryxos.core.agent.AgentDefinition"/>
+    </Match>
+
+    <!--
+      Spring 配置属性类按 JavaBean 规范暴露可变状态（getter/setter 注入），
+      EI_EXPOSE_REP/EI_EXPOSE_REP2 对 @ConfigurationProperties 为误报。
+    -->
+    <Match>
+        <Or>
+            <Bug pattern="EI_EXPOSE_REP"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
+        </Or>
+        <Source name="~.*Properties\.java"/>
+    </Match>
+
+    <!--
+      对 LLM Provider 返回值的防御性 null 检查：Spring AI 接口标注 @NonNull，
+      但第三方 Provider 实现未必遵守（ReAct 循环对畸形响应必须兜底），有意保留。
+    -->
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+        <Class name="com.oryxos.core.react.ReActLoop"/>
+    </Match>
+
+    <!--
+      CRLF_INJECTION_LOGS（findsecbugs 启发式）：凡日志含外部内容即报。
+      Agent 系统的日志本就大量包含 LLM 输出/会话内容，逐条清洗不现实；
+      日志落本地文件，非 HTTP 响应拆分场景。风险接受：日志消费方按不可信内容处理。
+    -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+
+    <!--
+      IMPROPER_UNICODE（findsecbugs CWE-176）对 CliChannel 的命中为场景误报：
+      交互式 CLI 里 exit/quit 命令的大小写比较不构成安全决策（最坏情况是命令不被识别），
+      非鉴权/路径/规范化场景。
+    -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.oryxos.channel.cli.CliChannel"/>
+    </Match>
+
+    <!--
+      DM_EXIT：Picocli CLI 主入口需 System.exit 返回进程退出码，这是 CLI 的正当语义而非误用。
+    -->
+    <Match>
+        <Bug pattern="DM_EXIT"/>
+        <Class name="com.oryxos.cli.OryxosCli"/>
+    </Match>
+
+</FindBugsFilter>

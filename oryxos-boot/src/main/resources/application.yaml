@@ -34,6 +34,23 @@ logging:
     root: info
 
 # ---------------------------------------------------------------------------
+# 可观测性（oryxos-init skill 步骤 4）：health/info/prometheus/metrics
+# 核心阶段最小集，认证/限流不做（宪法第二条，内网假设）
+# ---------------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: oryxos
+
+# ---------------------------------------------------------------------------
 # OryxOS 配置（contracts/cli-contract.md）
 # 密钥一律走环境变量（api-key-env 只存变量名，禁止明文写密钥——宪法工程约束）
 # ---------------------------------------------------------------------------
@@ -54,6 +71,7 @@ oryxos:
     deepseek:
       type: deepseek
       model: deepseek-chat
+      # 只存环境变量名！密钥本体禁止进 yaml/git（宪法工程约束，AGENTS.md §5 高发错误清单）
       api-key-env: DEEPSEEK_API_KEY
     # 第二家示例（US3 切换验收用，contracts/cli-contract.md）：
     # qwen:
@@ -66,3 +84,16 @@ oryxos:
     #   model: moonshot-v1-8k
     #   base-url: https://api.moonshot.cn/v1
     #   api-key-env: MOONSHOT_API_KEY
+
+---
+# ---------------------------------------------------------------------------
+# 「web」profile：启动内嵌 Web 容器（Spring MVC + 虚拟线程），暴露
+# /actuator/* 与 /swagger-ui.html。默认 none 不起容器——核心阶段 CLI 场景
+# 不拉 Web；US-5 Web Service 及监控验证走：--spring.profiles.active=web
+# ---------------------------------------------------------------------------
+spring:
+  config:
+    activate:
+      on-profile: web
+  main:
+    web-application-type: servlet

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OryxOS 日志配置（AGENTS.md §3：结构化日志 Logback + SLF4J）。
+  - 默认（dev）：彩色 console + 滚动文件（.oryxos/logs/，与宪法运行时目录一致）
+  - profile=prod：console 输出 JSON（LogstashEncoder），便于采集进 ELK/Loki
+  - MDC 字段：traceId（web 层 TraceIdFilter 注入）/ sessionId / agentName（Agent 调用链注入）
+  - 应用代码一律 SLF4J，禁止 System.out
+-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_PATH" value="${LOG_PATH:-.oryxos/logs}"/>
+
+    <!-- 在 Spring Boot 默认格式尾部追加 MDC 字段（未注入时为空串，不影响阅读） -->
+    <property name="ORYX_CONSOLE_PATTERN"
+              value="%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m %X{traceId} %X{sessionId} %X{agentName}%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    <property name="ORYX_FILE_PATTERN"
+              value="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%15.15t] %-40.40logger{39} %X{traceId} %X{sessionId} %X{agentName}: %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+    <!-- 滚动文件两 profile 共用：30 天 / 100MB 单文件 / 2GB 总量 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/oryxos.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/oryxos.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${ORYX_FILE_PATTERN}</pattern>
+            <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <!-- dev：彩色 console + 文件；console appender 仅在此 profile 定义，避免不引用告警 -->
+    <springProfile name="!prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${ORYX_CONSOLE_PATTERN}</pattern>
+                <charset>${CONSOLE_LOG_CHARSET}</charset>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- prod：console 输出 JSON（logstash encoder 自动带全部 MDC） + 文件 -->
+    <springProfile name="prod">
+        <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_JSON"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>

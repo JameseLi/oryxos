@@ -19,6 +19,22 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- 可观测性：健康检查 / info / metrics / Prometheus 导出 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- 生产环境（profile=prod）日志 JSON 化，见 logback-spring.xml -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+
         <!-- 聚合全部业务模块 -->
         <dependency>
             <groupId>com.oryxos</groupId>
