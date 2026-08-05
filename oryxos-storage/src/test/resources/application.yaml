@@ -1,0 +1,19 @@
+# 测试用内存 SQLite + 手工建表脚本（经 spring.sql.init 执行 001-init.sql）。
+# 不靠 Hibernate 自动建表——课件「LlmCallRepositoryTest 讲究」：建表走手工脚本，
+# 否则测试绿、生产跑真脚本时列名对不上，白测。
+spring:
+  datasource:
+    url: "jdbc:sqlite::memory:"
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:scripts/sql/001-init.sql
+oryxos:
+  workspace-dir: target/.oryxos

@@ -1,26 +1,20 @@
 package com.oryxos.core.tool;
 
 /**
- * OryxOS 工具抽象（宪法原则五：所有工具统一抽象，签名中立——不出现 "builtin/MCP/skill" 等实现来源词）。
+ * OryxOS 工具抽象（最小形态，第 16 节最早一节交付）。
  *
- * <p>实现方只暴露三样元数据 + 一个执行入口；调度、审计、沙箱、进度事件 全部归 {@code ToolExecutor} 与 ReActLoop 控制。
+ * <p>本节只用于把工具「参数说明」翻译成模型看得懂的 schema；{@code execute} 不在此——执行由后续节 {@code ToolExecutor}（§17）/ 完整 Tool
+ * 体系（§20）补齐。本接口只承载第 16 节 {@code ToolSchemaAdapter} 与 {@code ProviderService.chat} 所需成员 {@code name
+ * / description / getInputSchema()}，不越界加方法 （spec R1：后续 §17/§20 扩展时若需改公共接口由对应节课件明列「改造点」裁定）。
  */
 public interface OryxTool {
 
-  /** 工具名（LLM 侧可见的唯一标识，如 http_get）。 */
+  /** 工具名（provider 翻译 schema 时回传给模型；也是 {@code ToolRegistry} 查找键）。 */
   String name();
 
-  /** 用途说明（注入给 LLM 的工具清单）。 */
+  /** 工具的自然语言描述（告诉模型这个工具用来干嘛、什么时候该用它）。 */
   String description();
 
-  /** 入参 JSON Schema 文本（原样发给 LLM）。 */
-  String inputSchema();
-
-  /**
-   * 执行工具。
-   *
-   * @param argumentsJson LLM 给出的入参 JSON（可能非法，实现方必须容错并返回失败结果而非抛异常）
-   * @return 执行结果（成功/失败语义在结果对象内）
-   */
-  ToolResult execute(String argumentsJson);
+  /** 工具参数的 JSON Schema（字符串形式）；模型据此判断要传什么参数。 */
+  String getInputSchema();
 }

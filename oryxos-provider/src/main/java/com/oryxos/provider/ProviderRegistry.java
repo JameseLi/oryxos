@@ -1,93 +1,60 @@
 package com.oryxos.provider;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Component;
 
 /**
- * Provider 注册表：provider name → ChatModel 的<b>显式映射</b>（宪法原则四， 禁止"扫描容器里所有
- * ChatModel"按类型区分——同类型多家并存必有歧义）。
+ * Provider name → {@link ChatModel} 显式映射（课件「坑一」：禁止靠「扫描容器里所有 ChatModel」区分——Bean 类型 相同、name 未必对得上）。
  *
- * <p>懒构造：首次 resolve 时才实例化并缓存——保证 `oryxos init` 等无密钥命令 也能正常启动；密钥环境变量缺失在 resolve 时
- * fail-fast（FR-013：对话启动即报， 而不是首次调用才报错）。
+ * <p>启动时读 {@link ProviderProperties} 逐条经 {@link ChatModelFactory} 构造 {@link ChatModel}，存进内存 {@code
+ * Map<name, ChatModel>}：「谁对谁必须写死、看得见」。未知名抛 {@link ProviderNotFoundException}。
  */
 @Component
 public class ProviderRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(ProviderRegistry.class);
 
-  private final ProviderProperties properties;
-  private final ChatModelFactory factory;
-  private final Map<String, ChatModel> cache = new ConcurrentHashMap<>();
-
-  /** 环境变量读取入口（测试可替换）。 */
-  private Function<String, String> envReader = System::getenv;
+  private final Map<String, ChatModel> chatModels = new LinkedHashMap<>();
+  private final Map<String, String> models = new LinkedHashMap<>();
 
   public ProviderRegistry(ProviderProperties properties, ChatModelFactory factory) {
-    this.properties = properties;
-    this.factory = factory;
+    for (ProviderProperties.ProviderEntry entry : properties.getProviders()) {
+      if (entry.getName() == null || entry.getName().isBlank()) {
+        log.warn("跳过无 name 的 provider 条目: {}", entry);
+        continue;
+      }
+      try {
+        ChatModel model = factory.build(entry);
+        chatModels.put(entry.getName(), model);
+        models.put(entry.getName(), entry.getModel());
+        log.info("已注册 provider: {}", entry.getName());
+      } catch (RuntimeException e) {
+        // 构造失败不阻断启动——Entry 的 ${ENV} 未提供或 type 不支持时给清晰日志；ProfileLoader 校验会另行报错
+        log.error("构造 provider 失败，跳过: {} - {}", entry.getName(), e.getMessage());
+      }
+    }
   }
 
-  /** 测试专用：注入假环境变量表。 */
-  void setEnvReader(Function<String, String> envReader) {
-    this.envReader = envReader;
-  }
-
+  /** 按 name 取 {@link ChatModel}；取不到直接抛 {@link ProviderNotFoundException}。 */
   public ChatModel resolve(String providerName) {
-    ProviderProperties.ProviderSpec spec = specOf(providerName);
-    return cache.computeIfAbsent(
-        providerName,
-        name -> {
-          String apiKey = requireApiKey(name, spec);
-          log.info(
-              "构造 ChatModel: provider={} type={} model={}", name, spec.getType(), spec.getModel());
-          return factory.create(name, spec, apiKey);
-        });
+    ChatModel model = chatModels.get(providerName);
+    if (model == null) {
+      throw new ProviderNotFoundException(providerName);
+    }
+    return model;
   }
 
+  /** 全局层该 provider 声明的默认 model（Profile 可覆盖）。 */
   public String modelOf(String providerName) {
-    return specOf(providerName).getModel();
+    return models.get(providerName);
   }
 
-  public Set<String> availableProviders() {
-    return properties.getProviders().keySet();
-  }
-
-  private ProviderProperties.ProviderSpec specOf(String providerName) {
-    ProviderProperties.ProviderSpec spec = properties.getProviders().get(providerName);
-    if (spec == null) {
-      throw new IllegalStateException(
-          "Provider 未配置: '"
-              + providerName
-              + "'（可用: "
-              + (availableProviders().isEmpty() ? "<无>" : availableProviders())
-              + "）");
-    }
-    return spec;
-  }
-
-  private String requireApiKey(String providerName, ProviderProperties.ProviderSpec spec) {
-    String envName = spec.getApiKeyEnv();
-    if (envName == null || envName.isBlank()) {
-      throw new IllegalStateException(
-          "Provider '" + providerName + "' 缺少 api-key-env 配置（密钥只走环境变量，禁止明文）");
-    }
-    String apiKey = envReader.apply(envName);
-    if (apiKey == null || apiKey.isBlank()) {
-      throw new IllegalStateException(
-          "环境变量 "
-              + envName
-              + " 缺失（provider: "
-              + providerName
-              + "）。请 export "
-              + envName
-              + "=<your-api-key> 后重试");
-    }
-    return apiKey;
+  /** 已注册的 provider name 集合（诊断 / 启动日志用）。 */
+  public java.util.Set<String> registeredNames() {
+    return chatModels.keySet();
   }
 }

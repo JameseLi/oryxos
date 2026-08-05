@@ -1,0 +1,7 @@
+name: broken-agent
+description: YAML 非法（未闭合的引号 + 坏缩进）
+provider:
+  name: deepseek
+  model: "deepseek-chat
+tools:
+  - read_file
