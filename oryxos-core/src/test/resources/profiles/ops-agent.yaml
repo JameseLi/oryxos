@@ -1,0 +1,31 @@
+name: ops-agent
+description: 运维助手（合法全字段样例）
+identity:
+  agent_name: ops
+  prompt: 你是一名运维助手
+provider:
+  name: deepseek
+  model: deepseek-chat
+  temperature: 0.7
+tools:
+  - read_file
+  - shell
+skills:
+  - triage
+mcp_servers:
+  - github
+channels:
+  - type: cli
+notify_channels:
+  - type: webhook
+    url: ${OPS_WEBHOOK_URL}
+schedules:
+  - cron: "0 9 * * *"
+    zone: Asia/Shanghai
+    message: 早班巡检
+bootstrap:
+  - AGENTS.md
+  - SOUL.md
+settings:
+  max_iterations: 8
+  max_history_turns: 20

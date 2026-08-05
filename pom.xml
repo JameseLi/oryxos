@@ -187,6 +187,24 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.2.5</version>
+                    <!-- 课件验收 harness 测试策略：「单测默认跑、集成冒烟 @Tag("integration")
+                         CI 跳过」。此处统一排除 integration 分组，日常 mvn test / CI
+                         不跑集成冒烟；手动 mvn test -Dgroups=integration 跑真模型冒烟。 -->
+                    <configuration>
+                        <!-- 默认发现模式补 **/*IT.java：把打 @Tag("integration") 的集成冒烟纳入 Surefire
+                             发现范围（仅发现，是否跑由 excludedGroups 决定）。IT 后缀虽属 Maven failsafe 约定，
+                             但课程使用 ProviderSmokeIT 配 Surefire + @Tag 两档跑法即可，不引入 failsafe。 -->
+                        <includes>
+                            <include>**/*Test.java</include>
+                            <include>**/*Tests.java</include>
+                            <include>**/*TestCase.java</include>
+                            <include>**/*IT.java</include>
+                        </includes>
+                        <!-- 默认排除 integration 分组；集成冒烟手动跑：
+                             mvn test -Dsurefire.excludedGroups= -Dgroups=integration -DEEPSEEK_API_KEY=xxx
+                             （清空 excl、反向指 groups 把 integration 跑起来） -->
+                        <excludedGroups>${surefire.excludedGroups:integration}</excludedGroups>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>

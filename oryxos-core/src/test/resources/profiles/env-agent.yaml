@@ -1,0 +1,11 @@
+name: env-agent
+description: 带环境变量占位的样例
+provider:
+  name: kimi
+  model: moonshot-v1-8k
+  temperature: 0.3
+notify_channels:
+  - type: webhook
+    url: ${ENV_AGENT_WEBHOOK}
+settings:
+  max_iterations: 5

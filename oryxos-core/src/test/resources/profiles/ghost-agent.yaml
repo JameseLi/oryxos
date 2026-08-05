@@ -1,0 +1,6 @@
+name: ghost-agent
+description: 引用不存在的 provider（校验失败样例）
+provider:
+  name: no-such-provider
+  model: gpt-x
+temperature: 0.5

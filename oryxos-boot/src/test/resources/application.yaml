@@ -1,5 +1,26 @@
-# 测试用内存 SQLite，避免依赖 .oryxos/ 工作区已初始化
+# boot 测试用配置：内存 SQLite + 手工建表脚本（经 spring.sql.init 执行 001-init.sql）。
+# 不依赖 .oryxos 工作区已初始化。
+# provider 全局层：正常声明 deepseek，但 api-key 用占位 → ChatModelFactory 启动期 require 失败 →
+# ProviderRegistry catch 跳过该条 → registry 空（contextLoads 照常通过）。
+# ProviderSmokeIT 需要真 key 时由 @ActiveProfiles + DEEPSEEK_API_KEY 环境变量驱动，不在此默认上下文跑。
 spring:
   datasource:
     url: "jdbc:sqlite::memory:"
     driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:scripts/sql/001-init.sql
+oryxos:
+  workspace-dir: target/.oryxos
+  providers:
+    - name: deepseek
+      type: deepseek
+      model: deepseek-chat
+      api-key: ${DEEPSEEK_API_KEY:placeholder}
