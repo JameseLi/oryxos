@@ -31,6 +31,12 @@
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-community-dialects</artifactId>
         </dependency>
+        <!-- messages_json 编解码（第 18 节）：jackson-databind 本就在依赖树（core -> spring-ai-model 传递，
+             2.21.4 经 BOM 收敛），此处显式声明是传递依赖显式化，非新工件；版本走父 POM 管理 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

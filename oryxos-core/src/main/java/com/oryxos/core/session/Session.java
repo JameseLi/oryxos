@@ -12,24 +12,48 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 
 /**
- * 会话域类型（第 17 节最小形态，spec R1）。
+ * 会话域类型（第 17 节最小形态，第 18 节补全会话身份与历史恢复）。
  *
- * <p>存着这次对话的全部状态：身份（id + 所属 Profile 名）与消息累积。课件骨架的三个累积入口都在这--{@code
+ * <p>存着这次对话的全部状态：身份（id + 所属 Profile 名 + 接入三元组的 channel/user）与消息累积。课件骨架的三个累积入口都在这-- {@code
  * append(userMessage)}（用户话入史）、{@code append(resp)}（每轮 LLM 响应先入史再说，可审计）、 {@code
  * appendToolResult(call, result)}（工具结果回填入史）--坑三（不累积就没法审计、下一轮接不上）的落点。
  *
- * <p>完整形态（{@code session_id} 按 channel+user+profile 拼接公式、{@code sessions} 表持久化）是第 18 节交付； 本节 {@code
- * id} 由调用方给定，SessionManager 仅有 {@code save}。
+ * <p>第 18 节起 id 由 {@link SessionManager} 按 channel+user+profile 三元组生成（拼接只在那一处）； {@link #restore}
+ * 供持久层把存量的 {@code messages_json} 恢复成会话。两参构造器保留给第 17 节时代的调用方（channel/user 未知，置 null），兼容优先。
  */
 public final class Session {
 
   private final String id;
   private final String profileName;
+  private final String channel;
+  private final String userId;
   private final List<Message> messages = new ArrayList<>();
 
+  /** 第 17 节形态：调用方给定 id（channel/user 未知，置 null）。 */
   public Session(String id, String profileName) {
+    this(id, profileName, null, null);
+  }
+
+  /** 第 18 节形态：id 已由 SessionManager 按三元组生成，channel/user 随身携带。 */
+  public Session(String id, String profileName, String channel, String userId) {
     this.id = id;
     this.profileName = profileName;
+    this.channel = channel;
+    this.userId = userId;
+  }
+
+  /**
+   * 从存量历史恢复会话（第 18 节持久层回读用：进程重启后同一三元组拿回带历史的老会话）。
+   *
+   * @param messages 存量历史（防御拷贝入列，外部改动不得穿透）
+   */
+  public static Session restore(
+      String id, String profileName, String channel, String userId, List<Message> messages) {
+    Session session = new Session(id, profileName, channel, userId);
+    if (messages != null) {
+      session.messages.addAll(messages);
+    }
+    return session;
   }
 
   public String id() {
@@ -38,6 +62,16 @@ public final class Session {
 
   public String profileName() {
     return profileName;
+  }
+
+  /** 接入 Channel（"cli" / "web" / "scheduler"；第 17 节时代会话可能为 null）。 */
+  public String channel() {
+    return channel;
+  }
+
+  /** 用户标识（第 17 节时代会话可能为 null）。 */
+  public String userId() {
+    return userId;
   }
 
   /** 当前对话历史（防御拷贝：外部改动不得穿透进会话）。 */

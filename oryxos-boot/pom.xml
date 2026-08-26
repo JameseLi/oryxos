@@ -90,6 +90,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <!-- 第 18 节：fat JAR 主入口从 OryxOsApplication 切到 CLI（课件「一」：
+                     OryxOsCli 是整个程序的 main）。不显式声明则 repackage 在两个 main 类间无法裁决。 -->
+                <configuration>
+                    <mainClass>com.oryxos.cli.OryxOsCli</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
