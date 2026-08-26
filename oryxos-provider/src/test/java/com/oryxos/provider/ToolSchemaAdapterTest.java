@@ -36,6 +36,12 @@ class ToolSchemaAdapterTest {
           public String getInputSchema() {
             return "{\"type\":\"object\",\"properties\":{\"url\":{\"type\":\"string\"}},\"required\":[\"url\"]}";
           }
+
+          // 第 17 节 OryxTool 增补 execute 后的占位实现：本测试只关心 schema 翻译，不会真执行
+          @Override
+          public com.oryxos.core.tool.ToolResult execute(String input) {
+            return com.oryxos.core.tool.ToolResult.ok("not executed in schema test");
+          }
         };
 
     List<ToolCallback> callbacks = new ToolSchemaAdapter().toSpringAiTools(List.of(tool));
@@ -65,6 +71,12 @@ class ToolSchemaAdapterTest {
           @Override
           public String getInputSchema() {
             return "{}";
+          }
+
+          // 第 17 节 OryxTool 增补 execute 后的占位实现：断言只会走 ToolCallback 抛错路径，不会调到这里
+          @Override
+          public com.oryxos.core.tool.ToolResult execute(String input) {
+            return com.oryxos.core.tool.ToolResult.ok("must not be called");
           }
         };
     ToolCallback cb = new ToolSchemaAdapter().toSpringAiTools(List.of(tool)).get(0);

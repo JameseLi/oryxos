@@ -1,6 +1,7 @@
 package com.oryxos.provider;
 
 import com.oryxos.core.audit.LlmCallAudit;
+import com.oryxos.core.chat.ChatInvoker;
 import com.oryxos.core.profile.Profile;
 import com.oryxos.core.prompt.Prompt;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Service;
  * <p>本类不引入 fallback / hedge / 熔断 / 超时——课件「有几样先别做」。
  */
 @Service
-public class ProviderService {
+public class ProviderService implements ChatInvoker {
 
   private static final Logger log = LoggerFactory.getLogger(ProviderService.class);
 
