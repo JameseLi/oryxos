@@ -26,10 +26,31 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!-- 第 19 节 Notify：RestClient（WebhookNotifyAdapter 同步 HTTP 出站推送）；
+             spring 全家桶成员，版本走 Boot BOM，非新第三方依赖 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <!-- 第 19 节 Notify：@Tool/@ToolParam 注解（NotifyTools 方法标记，20 节 AnnotatedToolAdapter
+             扫描注册后生成 schema）；core 已依赖，此处显式化（18 节 R3 先例），版本走 Spring AI BOM -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-model</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 第 19 节 harness 第一批：MockWebServer 本地回环假 webhook（课件明言不算外网依赖，
+             仍是单测层）。Boot 3.5 BOM 已移除 okhttp3 版本管理，显式锁 4.12.0（与本地
+             生态一致；okhttp 5.x 的 mockwebserver3 改了坐标与 API，不跟） -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.12.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
