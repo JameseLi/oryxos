@@ -22,6 +22,13 @@
             <groupId>com.oryxos</groupId>
             <artifactId>oryxos-channel-cli</artifactId>
         </dependency>
+        <!-- 重命令启动类（SpringLauncher）需要 JPA 实体/仓储在模块内可解析：
+             @EntityScan/@EnableJpaRepositories 指向 storage 包，fat JAR 里 boot 本就聚合，
+             此处声明保证模块自足（spec R5） -->
+        <dependency>
+            <groupId>com.oryxos</groupId>
+            <artifactId>oryxos-storage</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

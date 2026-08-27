@@ -173,6 +173,12 @@ class ProviderServiceTest {
       public String getInputSchema() {
         return "{}";
       }
+
+      // 第 17 节 OryxTool 增补 execute 后的占位实现：本测试只关心 schema 翻译，不会真执行
+      @Override
+      public com.oryxos.core.tool.ToolResult execute(String input) {
+        return com.oryxos.core.tool.ToolResult.ok("not executed in provider tests");
+      }
     };
   }
 
