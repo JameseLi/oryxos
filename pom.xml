@@ -181,6 +181,10 @@
                     <configuration>
                         <release>${maven.compiler.release}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <!-- 第 20 节 Tool 体系：@Tool/@ToolParam 注解管道把方法参数名写进 JSON Schema、
+                             并按名绑定模型回传的入参（否则 schema 键退化为 arg0、入参映射失败）；
+                             spring-boot-starter-parent 默认开启，本仓库父 POM 用 spring-boot-dependencies（纯 BOM）需显式声明 -->
+                        <parameters>true</parameters>
                     </configuration>
                 </plugin>
                 <plugin>

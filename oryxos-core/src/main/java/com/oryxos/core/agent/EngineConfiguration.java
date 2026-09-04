@@ -6,12 +6,9 @@ import com.oryxos.core.profile.ProfileRegistry;
 import com.oryxos.core.react.PromptBuilder;
 import com.oryxos.core.react.ReActLoop;
 import com.oryxos.core.session.SessionManager;
-import com.oryxos.core.tool.OryxTool;
 import com.oryxos.core.tool.ToolExecutor;
 import com.oryxos.core.tool.ToolRegistry;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +21,9 @@ import org.springframework.context.annotation.Configuration;
  * {@link ToolInvocationAudit}/{@link SessionManager} 由 storage 模块的 JPA 实现提供--core 不感知实现模块。 17 节
  * POJO 本身零改动（不加注解，单测形态保留）。
  *
- * <p><b>过渡件</b>（20/22 节替换）：{@link ToolRegistry} 暂以空实现顶位（Tool 体系未交付，Profile 默认无工具、 PromptBuilder
- * 过滤后为空集）；{@code MemoryService} 传 {@code null}（未装配 = prompt 第二部分整体缺席，17 节口径）。
+ * <p><b>过渡件</b>（22 节替换）：{@code MemoryService} 传 {@code null}（未装配 = prompt 第二部分整体缺席，17 节口径）。 {@link
+ * ToolRegistry} 不再由本类装配--第 20 节 Tool 体系交付后由 oryxos-tool 模块的 {@code ToolRegistryConfiguration}
+ * 提供真实现（18 节的空注册表过渡 Bean 已按预告删除）。
  */
 @Configuration
 public class EngineConfiguration {
@@ -35,12 +33,6 @@ public class EngineConfiguration {
   public ContextLoader contextLoader(
       @Value("${oryxos.workspace-dir:.oryxos}") String workspaceDir) {
     return new ContextLoader(Path.of(workspaceDir));
-  }
-
-  /** 过渡 Bean：空工具注册表（Tool 体系第 20 节交付后替换为真注册表）。 内嵌私有实现，不立公开类型。 */
-  @Bean
-  public ToolRegistry toolRegistry() {
-    return new EmptyToolRegistry();
   }
 
   @Bean
@@ -66,19 +58,5 @@ public class EngineConfiguration {
   public AgentService agentService(
       ProfileRegistry profileRegistry, ReActLoop reActLoop, SessionManager sessionManager) {
     return new AgentService(profileRegistry, reActLoop, sessionManager);
-  }
-
-  /** 空注册表过渡实现（第 20 节由 ToolRegistry 真实现替换，届时本类删除此内嵌类）。 */
-  private static final class EmptyToolRegistry implements ToolRegistry {
-
-    @Override
-    public Optional<OryxTool> find(String name) {
-      return Optional.empty();
-    }
-
-    @Override
-    public List<OryxTool> all() {
-      return List.of();
-    }
   }
 }
