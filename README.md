@@ -187,3 +187,7 @@ OryxOS 以开源社区方式推进，扩展功能与社区共建功能（见路�
 ## License
 
 [Apache License 2.0](LICENSE)
+
+---
+
+Powered by dsh-superagent
