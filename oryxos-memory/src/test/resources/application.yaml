@@ -1,0 +1,21 @@
+# Memory 模块测试配置（第 22 节）：内存 SQLite + 真实手工建表脚本，不依赖 Hibernate 自动建表。
+# Hikari 连接池限制为 1：SQLite `jdbc:sqlite::memory:` 每个连接是独立库，多连接会让 JPA 看不到 init 脚本建的表。
+spring:
+  datasource:
+    url: "jdbc:sqlite::memory:"
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 1
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:scripts/sql/001-init.sql
+oryxos:
+  workspace-dir: target/.oryxos-memory-test

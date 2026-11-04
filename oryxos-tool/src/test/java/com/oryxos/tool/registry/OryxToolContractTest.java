@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
+import com.oryxos.core.memory.MemoryService;
 import com.oryxos.core.tool.OryxTool;
+import com.oryxos.memory.tool.MemoryTools;
 import com.oryxos.tool.builtin.FileTools;
 import com.oryxos.tool.builtin.HttpTools;
 import com.oryxos.tool.builtin.InteractionTools;
@@ -55,7 +57,7 @@ class OryxToolContractTest {
   }
 
   @org.junit.jupiter.api.Test
-  @DisplayName("完整注册表恰好含 12 个内置工具（6 内置 + notify + 扩展 5）+ 测试注入的两类来源")
+  @DisplayName("完整注册表恰好含 14 个内置工具（6 内置 + notify + 扩展 5 + memory 2）+ 测试注入的两类来源")
   void fullRegistryHoldsExpectedTools() {
     assertThat(fullRegistry.all())
         .extracting(OryxTool::name)
@@ -72,6 +74,8 @@ class OryxToolContractTest {
             "ask_user",
             "web_search",
             "notify",
+            "save_memory",
+            "recall_memory",
             "plain_tool",
             "mcp_tool");
   }
@@ -95,7 +99,8 @@ class OryxToolContractTest {
         new HttpTools(sandbox, RestClient.create()),
         new InteractionTools(new ConsoleUserInteraction()),
         new WebSearchTools(sandbox, provider(), SearchProviderEndpoint.DUCKDUCKGO),
-        new NotifyTools(neverSendAdapter()));
+        new NotifyTools(neverSendAdapter()),
+        new MemoryTools(mock(MemoryService.class)));
     registry.register(plainTool("plain_tool"));
     registry.register(mcpTool());
     return registry;

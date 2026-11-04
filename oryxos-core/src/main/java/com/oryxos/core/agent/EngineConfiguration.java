@@ -2,6 +2,7 @@ package com.oryxos.core.agent;
 
 import com.oryxos.core.audit.ToolInvocationAudit;
 import com.oryxos.core.chat.ChatInvoker;
+import com.oryxos.core.memory.MemoryService;
 import com.oryxos.core.profile.ProfileRegistry;
 import com.oryxos.core.react.PromptBuilder;
 import com.oryxos.core.react.ReActLoop;
@@ -21,9 +22,9 @@ import org.springframework.context.annotation.Configuration;
  * {@link ToolInvocationAudit}/{@link SessionManager} 由 storage 模块的 JPA 实现提供--core 不感知实现模块。 17 节
  * POJO 本身零改动（不加注解，单测形态保留）。
  *
- * <p><b>过渡件</b>（22 节替换）：{@code MemoryService} 传 {@code null}（未装配 = prompt 第二部分整体缺席，17 节口径）。 {@link
- * ToolRegistry} 不再由本类装配--第 20 节 Tool 体系交付后由 oryxos-tool 模块的 {@code ToolRegistryConfiguration}
- * 提供真实现（18 节的空注册表过渡 Bean 已按预告删除）。
+ * <p>{@link MemoryService} 由 oryxos-memory 模块的 {@code MemoryConfiguration} 提供（第 22 节：17 节 {@code
+ * MemoryService=null} 过渡的兑现）；{@link ToolRegistry} 由 oryxos-tool 模块的 {@code
+ * ToolRegistryConfiguration} 提供真实现（18 节的空注册表过渡 Bean 已按 20 节预告删除）。
  */
 @Configuration
 public class EngineConfiguration {
@@ -36,9 +37,9 @@ public class EngineConfiguration {
   }
 
   @Bean
-  public PromptBuilder promptBuilder(ContextLoader contextLoader, ToolRegistry toolRegistry) {
-    // MemoryService=null：22 节交付 Memory 模块后改为装配（未装配 = 第二部分整体缺席）
-    return new PromptBuilder(contextLoader, toolRegistry, null);
+  public PromptBuilder promptBuilder(
+      ContextLoader contextLoader, ToolRegistry toolRegistry, MemoryService memoryService) {
+    return new PromptBuilder(contextLoader, toolRegistry, memoryService);
   }
 
   @Bean

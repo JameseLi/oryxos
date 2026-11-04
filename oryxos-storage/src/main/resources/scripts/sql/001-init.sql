@@ -63,3 +63,16 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 -- 按 Profile 维度查会话的索引（session list / Agent 视角）
 CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile_name);
+
+-- memory_entries：长期记忆条目（第 22 节，技术方案 §9.2；手工建表，与 sessions/审计表同口径）。
+--   scope 列区分 CORE / ARCHIVAL：核心区 WHERE scope='CORE' 全量取（永不被截断），
+--   归档区查询加 LIMIT 100、关键词检索用 LIKE。Memory 后端默认 markdown，本表只在 memory.backend=sqlite 时使用。
+CREATE TABLE IF NOT EXISTS memory_entries (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    scope      VARCHAR(16) NOT NULL,   -- CORE / ARCHIVAL
+    content    TEXT NOT NULL,
+    created_at TEXT NOT NULL           -- ISO-8601 字符串，由实体层写入（口径同 llm_calls/sessions）
+);
+
+-- 按分区查记忆的索引（核心区全量 / 归档区最近 N 条）
+CREATE INDEX IF NOT EXISTS idx_memory_scope ON memory_entries (scope);

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.oryxos.core.agent.ContextLoader;
+import com.oryxos.core.memory.MemoryScope;
 import com.oryxos.core.memory.MemoryService;
 import com.oryxos.core.profile.Profile;
 import com.oryxos.core.prompt.Prompt;
@@ -53,7 +54,21 @@ class PromptBuilderTest {
   @Test
   @DisplayName("四部分顺序正确：system（含角色+Bootstrap+日期时间）-> 长期记忆 -> 会话历史，工具列表随 Prompt 交付")
   void buildsFourPartsInOrder() {
-    MemoryService memory = session -> "长期记忆：用户在北京";
+    MemoryService memory =
+        new MemoryService() {
+          @Override
+          public String buildContext(Session session) {
+            return "长期记忆：用户在北京";
+          }
+
+          @Override
+          public void remember(String content, MemoryScope scope) {}
+
+          @Override
+          public List<String> recall(String keyword) {
+            return List.of();
+          }
+        };
     PromptBuilder builder = new PromptBuilder(contextLoader, toolRegistry, memory, FIXED_CLOCK);
     Session session = new Session("s-1", "weather");
     session.append("昨天北京天气怎样");

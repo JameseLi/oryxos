@@ -18,5 +18,46 @@
             <groupId>com.oryxos</groupId>
             <artifactId>oryxos-core</artifactId>
         </dependency>
+        <!-- 第 22 节：SqliteMemoryStore 经 MemoryEntryRepository 落 memory_entries 表（持久化层归 storage，
+             技术方案 §10）；同时带入 spring-data-jpa / sqlite-jdbc / hibernate-community-dialects，
+             均为既有锁定链工件，非新第三方家族 -->
+        <dependency>
+            <groupId>com.oryxos</groupId>
+            <artifactId>oryxos-storage</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <!-- 第 22 节 Mem0 档：RestClient 同步 HTTP（19 节已在链，显式化）；版本走 Boot BOM -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <!-- 第 22 节 MemoryTools：@Tool/@ToolParam 注解（20 节 registerAnnotated 生成 schema）；
+             core 已依赖，此处显式化（18 节 R3 先例），版本走 Spring AI BOM -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-model</artifactId>
+        </dependency>
+        <!-- Mem0 REST 响应解析（JsonNode）；core 已依赖，显式化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 第 22 节 harness：本地假 Mem0 HTTP 服务（MockWebServer 本地回环，不碰外网）；
+             Boot 3.5 BOM 已不管 okhttp3 版本，沿用 19/20 节显式锁 4.12.0 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.12.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
