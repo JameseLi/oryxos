@@ -4,7 +4,7 @@
 
 # OryxOS
 
-**Java 原生的企业级 Agent OS —— 私有部署、完全可审计的 Agent 统一底座**
+**Java 原生的企业级 OryxOS —— 私有部署、完全可审计的 Agent 统一底座**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![JDK](https://img.shields.io/badge/JDK-21%2B-orange.svg)](https://openjdk.org/)
