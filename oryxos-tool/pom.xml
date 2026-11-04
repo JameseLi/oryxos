@@ -18,6 +18,12 @@
             <groupId>com.oryxos</groupId>
             <artifactId>oryxos-core</artifactId>
         </dependency>
+        <!-- 第 22 节：ToolRegistryConfiguration 显式注册 MemoryTools（save_memory/recall_memory）；
+             memory 依赖 core/storage，tool 不反向被 memory 依赖，无环 -->
+        <dependency>
+            <groupId>com.oryxos</groupId>
+            <artifactId>oryxos-memory</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

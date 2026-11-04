@@ -81,6 +81,14 @@ oryxos:
     #   model: qwen-plus
     #   api-key: ${AI_DASHSCOPE_API_KEY}
 
+# ---------------------------------------------------------------------------
+# 第 22 节 Memory：长期记忆后端选择（markdown | sqlite | mem0），默认 markdown。
+# 换后端只改这一行，MemoryService 以上（PromptBuilder/MemoryTools/ReActLoop）零改动。
+# mem0 档的地址/凭证走环境变量：MEM0_BASE_URL / MEM0_USER_ID / MEM0_API_KEY，不落明文。
+# ---------------------------------------------------------------------------
+memory:
+  backend: ${MEMORY_BACKEND:markdown}
+
 ---
 # ---------------------------------------------------------------------------
 # 「web」profile：启动内嵌 Web 容器（Spring MVC + 虚拟线程），暴露

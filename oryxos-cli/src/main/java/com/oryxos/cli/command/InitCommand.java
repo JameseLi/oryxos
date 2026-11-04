@@ -84,8 +84,7 @@ public class InitCommand implements Runnable {
   private static final String USER_MD =
       "# USER.md\n\n用户画像（Bootstrap，注入 system prompt）。\n" + "在这里写默认用户的称呼、偏好、常用语言。\n";
 
-  private static final String MEMORY_MD =
-      "# MEMORY.md\n\n# 核心记忆区（永不截断，全量注入）\n\n（暂无）\n\n" + "# 归档记忆区（参与检索）\n\n（暂无）\n";
+  private static final String MEMORY_MD = "# MEMORY.md\n\n## 核心记忆\n\n（暂无）\n\n## 归档记忆\n\n（暂无）\n";
 
   private static final String MCP_SERVERS_YAML =
       "# MCP server 配置（零代码 Plugin Tool 档，第 20 节交付后生效）。\n"
